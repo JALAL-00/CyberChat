@@ -7,8 +7,8 @@
 
 | Component | Platform | Live URL |
 | :--- | :--- | :--- |
-| **Frontend Web App** | Vercel | [Insert your Vercel URL here, e.g., `https://cyberpeers-chat.vercel.app`] |
-| **Backend API Service** | Render | [Insert your Render URL here, e.g., `https://cyberchat-api-jalal.onrender.com`] |
+| **Frontend Web App** | Vercel | [`https://cyberpeers-chat.vercel.app`](https://cyberpeers-chat.vercel.app) |
+| **Backend API Service** | Render | [https://cyberchat-api-jalal.onrender.com `https://cyberchat-api-jalal.onrender.com`] |
 
 ## Short Demo Video (Screen Recording)
 
