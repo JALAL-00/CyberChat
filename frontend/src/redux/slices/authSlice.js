@@ -1,19 +1,15 @@
-// frontend/src/redux/slices/authSlice.js
-
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-// Utility function to get user from cookie/token
 const getUserFromCookie = () => {
     const token = Cookies.get('token');
     if (token) {
         try {
-            // Simple JWT payload decoding (base64)
             const payload = JSON.parse(atob(token.split('.')[1]));
-            return { token, _id: payload.id, email: payload.email }; // Get necessary info
+            return { token, _id: payload.id, email: payload.email };
         } catch (e) {
             console.error("Failed to decode token:", e);
             Cookies.remove('token');
@@ -24,18 +20,17 @@ const getUserFromCookie = () => {
 };
 
 const initialState = {
-    user: getUserFromCookie(), // Load user on startup
+    user: getUserFromCookie(),
     isLoading: false,
     error: null,
 };
 
-// Async Thunks for API interaction
 export const register = createAsyncThunk(
     'auth/register',
     async (userData, thunkAPI) => {
         try {
             const response = await axios.post(`${API_URL}/api/auth/register`, userData);
-            Cookies.set('token', response.data.token, { expires: 10 }); // Expires in 10 days
+            Cookies.set('token', response.data.token, { expires: 10 });
             return response.data;
         } catch (error) {
             return thunkAPI.rejectWithValue(error.response.data);
@@ -67,7 +62,6 @@ export const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Register & Login common logic
             .addCase(register.fulfilled, (state, action) => {
                 state.isLoading = false;
                 state.user = action.payload;

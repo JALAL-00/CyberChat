@@ -1,9 +1,7 @@
-// frontend/src/redux/slices/socketSlice.js (UPDATED with message-received listener)
-
 import { createSlice } from '@reduxjs/toolkit';
 import { io } from 'socket.io-client';
 import Cookies from 'js-cookie';
-import { handleNewMessage, chatSlice } from './chatSlice'; // Import the new action and slice
+import { handleNewMessage, chatSlice } from './chatSlice';
 
 const initialState = {
     socket: null,
@@ -45,7 +43,6 @@ export const connectSocket = () => (dispatch, getState) => {
             auth: {
                 token: token
             },
-            // This is required for CORS to work with Socket.IO in some environments
             transports: ['websocket', 'polling'] 
         });
 
@@ -59,12 +56,10 @@ export const connectSocket = () => (dispatch, getState) => {
             console.log('Socket.IO Disconnected');
         });
 
-        // --- NEW REAL-TIME MESSAGE LISTENER ---
         newSocket.on('message-received', (message) => {
             dispatch(handleNewMessage(message));
         });
 
-        // Online Status Listeners
         newSocket.on('user-online', (userId) => {
             dispatch(userOnline(userId));
         });
@@ -73,7 +68,6 @@ export const connectSocket = () => (dispatch, getState) => {
             dispatch(userOffline(userId));
         });
 
-        // Typing Indicator Listeners
         newSocket.on('typing-started', ({ userId, conversationId }) => {
             dispatch(chatSlice.actions.startTyping({ userId, conversationId }));
         });

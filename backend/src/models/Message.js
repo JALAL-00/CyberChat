@@ -1,5 +1,3 @@
-// backend/src/models/Message.js
-
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
@@ -17,10 +15,9 @@ const MessageSchema = new mongoose.Schema({
     content: {
         type: String,
         required: function() {
-            // Content is only required if it's a TEXT message and no media is present
             return this.type === 'text' && !this.mediaUrl;
         },
-        default: null, // Allow null for media messages
+        default: null,
     },
     type: {
         type: String,
@@ -29,7 +26,7 @@ const MessageSchema = new mongoose.Schema({
     },
     mediaUrl: {
         type: String,
-        default: null, // Path to the uploaded file
+        default: null,
     }
 }, {
     timestamps: true,

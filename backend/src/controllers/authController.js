@@ -1,13 +1,8 @@
-// backend/src/controllers/authController.js
-
 const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
 const registerUser = async (req, res) => {
     const { firstName, lastName, email, password } = req.body;
-
     const userExists = await User.findOne({ email });
 
     if (userExists) {
@@ -19,7 +14,6 @@ const registerUser = async (req, res) => {
         lastName,
         email,
         password,
-        // profilePicture is optional here
     });
 
     if (user) {
@@ -35,11 +29,8 @@ const registerUser = async (req, res) => {
     }
 };
 
-// @desc    Auth user & get token
-// @route   POST /api/auth/login
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
-
     const user = await User.findOne({ email });
 
     if (user && (await user.matchPassword(password))) {

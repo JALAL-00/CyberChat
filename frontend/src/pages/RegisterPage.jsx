@@ -1,5 +1,3 @@
-// frontend/src/pages/RegisterPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
@@ -15,7 +13,7 @@ const RegisterPage = () => {
 
     useEffect(() => {
         if (user) {
-            navigate('/'); 
+            navigate('/');
         }
     }, [user, navigate]);
 
@@ -43,21 +41,21 @@ const RegisterPage = () => {
                     <Input type="text" name="lastName" placeholder="Last Name" value={formData.lastName} onChange={handleChange} required />
                 </div>
             </div>
-            
+
             <div>
                 <label className="text-sm font-medium">Email</label>
                 <Input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
             </div>
-            
+
             <div>
                 <label className="text-sm font-medium">Password</label>
                 <Input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
             </div>
-            
+
             <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white" disabled={isLoading}>
                 {isLoading ? 'Loading...' : 'Register'}
             </Button>
-            
+
             <p className="text-center text-sm">
                 Already have an account? <Link to="/login" className="text-blue-500 hover:underline">Login</Link>
             </p>

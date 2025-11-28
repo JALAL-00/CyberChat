@@ -1,5 +1,3 @@
-// frontend/src/App.jsx
-
 import React, { useEffect } from 'react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -9,7 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ChatPage from './pages/ChatPage';
 
-// Simple Private Route Guard
+
 const PrivateRoute = ({ element: Component, ...rest }) => {
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
@@ -27,7 +25,6 @@ function App() {
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
   
-  // Connect/Disconnect socket based on auth state
   useEffect(() => {
     if (user) {
       dispatch(connectSocket());

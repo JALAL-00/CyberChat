@@ -1,9 +1,5 @@
-// frontend/src/components/chat/ConversationDetails.jsx (From your original project outline)
-
 import React from 'react';
-// We are using Mongoose structure, so the Conversation type is implicit
-// The imports use lowercase file names for simplicity
-import { Bell, Pin, UserPlus, Settings, Image as ImageIcon, FileText, Link2 } from 'lucide-react'; 
+import { Bell, Pin, UserPlus, Settings } from 'lucide-react';
 
 export default function ConversationDetails({ activeConversation }) {
   if (!activeConversation) return <aside className="hidden xl:w-1/4 xl:flex"></aside>;

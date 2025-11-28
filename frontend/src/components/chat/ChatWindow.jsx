@@ -1,14 +1,9 @@
-// frontend/src/components/chat/ChatWindow.jsx (UPDATED for Typing Indicator)
-
 import React, { useRef, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Phone, Video, MoreHorizontal } from 'lucide-react';
 
-// --- Your Existing Imports ---
-// We will move AvatarFallback and MessageBubble into the same file for now to save time
-const API_URL = import.meta.env.VITE_BACKEND_URL; 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-// --- Helper Functions and Components (Simplified versions for Mongoose) ---
 const AvatarFallback = ({ name, className }) => {
     const initial = (name || 'User').trim().charAt(0).toUpperCase();
     return (
@@ -20,9 +15,7 @@ const AvatarFallback = ({ name, className }) => {
 
 const MessageBubble = ({ message, currentUserId }) => {
     const isSender = message.sender._id === currentUserId;
-    // ... (rest of renderContent from your previous code - ASSUMED CORRECT) ...
     const renderContent = () => {
-        // ... (Implement your full render logic here for text, image, file, etc.)
         return (
             <div className={`p-2 rounded-lg max-w-xs break-words ${isSender ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
                 {message.content || `[${message.type.toUpperCase()} MESSAGE]`}
@@ -51,32 +44,27 @@ const MessageBubble = ({ message, currentUserId }) => {
     );
 };
 
-// --- MessageInput Component (Needs the typing logic) ---
 const MessageInput = ({ onSendMessage, activeConversationId, socket, currentUserId }) => {
     const [text, setText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const typingTimeoutRef = useRef(null);
 
-    // Function to handle typing event emission
     const handleInputChange = (e) => {
         setText(e.target.value);
 
         if (!socket || !activeConversationId) return;
 
-        // 1. Emit typing-start if not already typing
         if (!isTyping) {
             setIsTyping(true);
             socket.emit('typing-start', { conversationId: activeConversationId });
         }
 
-        // 2. Clear previous timeout
         clearTimeout(typingTimeoutRef.current);
 
-        // 3. Set a new timeout to emit typing-stop after a short delay
         typingTimeoutRef.current = setTimeout(() => {
             setIsTyping(false);
             socket.emit('typing-stop', { conversationId: activeConversationId });
-        }, 3000); // Stop after 3 seconds of no input
+        }, 3000);
     };
 
     const handleSendText = (e) => {
@@ -84,8 +72,7 @@ const MessageInput = ({ onSendMessage, activeConversationId, socket, currentUser
         if (text.trim()) {
             onSendMessage({ content: text, type: 'text', mediaUrl: null });
             setText('');
-            
-            // Immediately stop typing after sending message
+
             if (isTyping && socket && activeConversationId) {
                 clearTimeout(typingTimeoutRef.current);
                 setIsTyping(false);
@@ -94,7 +81,6 @@ const MessageInput = ({ onSendMessage, activeConversationId, socket, currentUser
         }
     };
 
-    // Cleanup timeout on unmount
     useEffect(() => {
         return () => clearTimeout(typingTimeoutRef.current);
     }, []);
@@ -102,11 +88,10 @@ const MessageInput = ({ onSendMessage, activeConversationId, socket, currentUser
     return (
         <form onSubmit={handleSendText} className="p-4 border-t bg-gray-50 flex-shrink-0">
             <div className="flex items-center gap-2 bg-white p-2 rounded-lg border">
-                {/* File input omitted for simplicity, but your previous code should be used here */}
                 <input
                     type="text"
                     value={text}
-                    onChange={handleInputChange} // Use the new handler
+                    onChange={handleInputChange}
                     placeholder="Type a message..."
                     className="flex-grow p-2 focus:outline-none"
                 />
@@ -117,8 +102,6 @@ const MessageInput = ({ onSendMessage, activeConversationId, socket, currentUser
         </form>
     );
 };
-// -------------------------------------------------------------
-
 
 export default function ChatWindow({ activeConversation, messages, currentUserId, onSendMessage, socket }) {
   const messagesEndRef = useRef(null);
@@ -140,7 +123,6 @@ export default function ChatWindow({ activeConversation, messages, currentUserId
   const typingUserIds = typingUsers[activeConversation._id] || [];
   const isTyping = typingUserIds.some(id => id === otherParticipant._id);
 
-
   return (
     <main className="w-full md:w-3/4 xl:w-4/5 flex flex-col bg-white border-l">
       <header className="flex items-center justify-between p-4 border-b bg-white flex-shrink-0">
@@ -154,7 +136,7 @@ export default function ChatWindow({ activeConversation, messages, currentUserId
           </div>
           <div>
             <p className="font-bold">{otherParticipant?.firstName} {otherParticipant?.lastName}</p>
-            {isTyping && <p className="text-xs text-green-500">Typing...</p>} {/* TYPING INDICATOR */}
+            {isTyping && <p className="text-xs text-green-500">Typing...</p>}
           </div>
         </div>
         <div className="flex items-center gap-2">

@@ -1,11 +1,8 @@
-// frontend/src/api/apiService.js
-
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
-// Create an Axios instance
 const api = axios.create({
     baseURL: API_URL,
     headers: {
@@ -13,7 +10,6 @@ const api = axios.create({
     },
 });
 
-// Request interceptor to attach JWT token
 api.interceptors.request.use(
     (config) => {
         const token = Cookies.get('token');
@@ -26,8 +22,6 @@ api.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-
-// --- CHAT API FUNCTIONS ---
 
 export const getUsersForChat = async () => {
     const response = await api.get('/api/chat/users');
@@ -44,5 +38,4 @@ export const getMessagesHistory = async (conversationId) => {
     return response.data;
 };
 
-// Export the base axios instance for the Redux thunks
 export default api;
