@@ -1,0 +1,24 @@
+/* frontend/src/index.css (Crucial additions to the @layer base :root block) */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 47.4% 11.2%;
+
+    /* --- THESE ARE LIKELY MISSING --- */
+    --primary: 222.2 47.4% 11.2%; /* This is what colors the Button */
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 47.4% 11.2%;
+    /* ... (many more variables like accent, destructive, etc. must be here) ... */
+  }
+}
+/* ... rest of your CSS ... */
