@@ -7,6 +7,7 @@ const connectDB = require('./db');
 
 const authRoutes = require('./routes/authRoutes');
 const chatRoutes = require('./routes/chatRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 const { socketAuthMiddleware, onlineUsers, chatSocketLogic } = require('./socket/chatSocket');
 
 dotenv.config();
@@ -33,8 +34,12 @@ app.use(cors({
     credentials: true,
 }));
 
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/upload', uploadRoutes);
 
 const PORT = process.env.PORT || 5001;
 

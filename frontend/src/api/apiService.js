@@ -38,4 +38,17 @@ export const getMessagesHistory = async (conversationId) => {
     return response.data;
 };
 
+export const uploadChatFile = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await api.post('/api/upload', formData, {
+        headers: {
+            
+            'Content-Type': undefined, 
+        }
+    });
+    return response.data;
+};
+
 export default api;

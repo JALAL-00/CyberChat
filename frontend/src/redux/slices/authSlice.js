@@ -9,7 +9,7 @@ const getUserFromCookie = () => {
     if (token) {
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
-            return { token, _id: payload.id, email: payload.email };
+            return { token, _id: payload.id, email: payload.email, firstName: payload.firstName, lastName: payload.lastName };
         } catch (e) {
             console.error("Failed to decode token:", e);
             Cookies.remove('token');
@@ -57,6 +57,8 @@ export const authSlice = createSlice({
     reducers: {
         logout: (state) => {
             state.user = null;
+            state.isLoading = false;
+            state.error = null;
             Cookies.remove('token');
         },
     },

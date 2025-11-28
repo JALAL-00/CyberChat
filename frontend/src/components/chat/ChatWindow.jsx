@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Phone, Video, MoreHorizontal } from 'lucide-react';
+import { Phone, Video, MoreHorizontal, Paperclip, Send, File, Image as ImageIcon } from 'lucide-react';
+import { uploadChatFile } from '../../api/apiService';
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -15,12 +16,51 @@ const AvatarFallback = ({ name, className }) => {
 
 const MessageBubble = ({ message, currentUserId }) => {
     const isSender = message.sender._id === currentUserId;
+    
     const renderContent = () => {
-        return (
-            <div className={`p-2 rounded-lg max-w-xs break-words ${isSender ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
-                {message.content || `[${message.type.toUpperCase()} MESSAGE]`}
-            </div>
-        );
+        const mediaUrl = message.mediaUrl ? `${API_URL}/${message.mediaUrl}` : null;
+
+        switch (message.type) {
+            case 'image':
+                return (
+                    <div className="max-w-xs cursor-pointer" onClick={() => window.open(mediaUrl, '_blank')}>
+                        <img 
+                            src={mediaUrl} 
+                            alt="Image media" 
+                            className="rounded-lg object-cover max-h-64" 
+                            loading="lazy"
+                        />
+                    </div>
+                );
+            case 'video':
+                return (
+                    <video controls className="rounded-lg max-w-sm max-h-64">
+                        <source src={mediaUrl} />
+                        Your browser does not support the video tag.
+                    </video>
+                );
+            case 'file':
+                return (
+                    <a
+                        href={mediaUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-2 p-3 rounded-lg max-w-xs transition-colors ${
+                            isSender ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-gray-300 hover:bg-gray-400 text-gray-800'
+                        }`}
+                    >
+                        <File size={24} />
+                        <span className="font-semibold">{message.content || 'Download File'}</span>
+                    </a>
+                );
+            case 'text':
+            default:
+                return (
+                    <div className={`p-2 rounded-lg max-w-xs break-words ${isSender ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}>
+                        {message.content}
+                    </div>
+                );
+        }
     };
 
     return (
@@ -47,7 +87,38 @@ const MessageBubble = ({ message, currentUserId }) => {
 const MessageInput = ({ onSendMessage, activeConversationId, socket, currentUserId }) => {
     const [text, setText] = useState('');
     const [isTyping, setIsTyping] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const typingTimeoutRef = useRef(null);
+    const fileInputRef = useRef(null);
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        clearTimeout(typingTimeoutRef.current);
+        
+        try {
+            const { filePath, fileName, fileType } = await uploadChatFile(file);
+            
+            let type = 'file';
+            if (fileType.startsWith('image/')) type = 'image';
+            if (fileType.startsWith('video/')) type = 'video';
+            
+            onSendMessage({ 
+                content: fileName, 
+                type: type, 
+                mediaUrl: filePath 
+            });
+
+        } catch (error) {
+            console.error("File upload failed:", error);
+            alert(`File upload failed. Max size 50MB. Error: ${error.message || 'Unknown error'}`);
+        } finally {
+            setIsUploading(false);
+            if(fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
 
     const handleInputChange = (e) => {
         setText(e.target.value);
@@ -69,10 +140,10 @@ const MessageInput = ({ onSendMessage, activeConversationId, socket, currentUser
 
     const handleSendText = (e) => {
         e.preventDefault();
-        if (text.trim()) {
+        if (text.trim() && !isUploading) { 
             onSendMessage({ content: text, type: 'text', mediaUrl: null });
             setText('');
-
+            
             if (isTyping && socket && activeConversationId) {
                 clearTimeout(typingTimeoutRef.current);
                 setIsTyping(false);
@@ -88,15 +159,29 @@ const MessageInput = ({ onSendMessage, activeConversationId, socket, currentUser
     return (
         <form onSubmit={handleSendText} className="p-4 border-t bg-gray-50 flex-shrink-0">
             <div className="flex items-center gap-2 bg-white p-2 rounded-lg border">
+                <button type="button" 
+                        className="p-2 text-gray-500 hover:text-blue-500" 
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploading}
+                >
+                    <Paperclip size={20} />
+                </button>
+                <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
+
                 <input
                     type="text"
                     value={text}
                     onChange={handleInputChange}
-                    placeholder="Type a message..."
+                    placeholder={isUploading ? "Uploading file..." : "Type a message..."}
                     className="flex-grow p-2 focus:outline-none"
+                    disabled={isUploading}
                 />
-                <button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors">
-                    Send
+
+                <button type="submit" 
+                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                        disabled={isUploading || text.trim() === ''} 
+                >
+                    {isUploading ? '...' : <Send size={20} />}
                 </button>
             </div>
         </form>
@@ -148,7 +233,7 @@ export default function ChatWindow({ activeConversation, messages, currentUserId
 
       <div className="flex-grow p-4 overflow-y-auto space-y-4 bg-gray-100">
         {messages.map((msg) => (
-          <MessageBubble key={msg._id} message={msg} currentUserId={currentUserId} />
+          <MessageBubble key={msg._1 || msg._id} message={msg} currentUserId={currentUserId} />
         ))}
         <div ref={messagesEndRef} />
       </div>

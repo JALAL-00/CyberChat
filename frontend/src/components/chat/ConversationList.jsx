@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import { Search, LogOut } from 'lucide-react';
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -40,7 +41,15 @@ const ConversationListItem = ({ user, isActive, isOnline, onUserClick }) => {
 };
 
 export default function ConversationList({ users, activeConversation, currentUserId, onlineUsers, onUserClick, handleLogout }) {
-    const contacts = users.filter(u => u._id !== currentUserId);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const allContacts = users.filter(u => u._id !== currentUserId);
+
+    const filteredContacts = allContacts.filter(user => 
+        user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <aside className="w-full md:w-1/4 xl:w-1/5 flex flex-col border-r bg-white">
@@ -51,12 +60,18 @@ export default function ConversationList({ users, activeConversation, currentUse
             <div className="p-4 border-b">
                 <div className="relative">
                     <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                    <input type="text" placeholder="Search users" className="w-full pl-10 pr-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                    <input 
+                        type="text" 
+                        placeholder="Search users" 
+                        className="w-full pl-10 pr-4 py-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
                 </div>
             </div>
 
             <ul className="overflow-y-auto flex-grow divide-y">
-                {contacts.map(user => {
+                {filteredContacts.map(user => {
                     const isActive = activeConversation?.participants.some(p => p._id === user._id) && 
                                      activeConversation.participants.length === 2;
 
@@ -77,7 +92,7 @@ export default function ConversationList({ users, activeConversation, currentUse
             <div className="p-4 border-t">
                 <button 
                     onClick={handleLogout} 
-                    className="w-full flex items-center justify-center space-x-2 p-3 text-black font-semibold rounded-lg hover:bg-red-600 transition-colors"
+                    className="w-full flex items-center justify-center space-x-2 p-3 text-black font-semibold rounded-lg hover:bg-red-600 hover:text-white transition-colors"
                 >
                     <LogOut size={20} />
                     <span>Logout</span>
